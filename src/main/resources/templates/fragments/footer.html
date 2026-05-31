@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="practiceFooter">
+    <footer class="practice-footer">
+        <span id="practiceDateTime"
+              th:text="${'실습 수행 일시: ' + #temporals.format(#temporals.createNow(), 'yyyy년 M월 d일(E) HH:mm:ss')}">
+            &#49892;&#49845; &#49688;&#54665; &#51068;&#49884;:
+        </span>
+        <span class="practice-separator">|</span>
+        <span>&#54617;&#48264;: 2171088</span>
+        <span class="practice-separator">|</span>
+        <span>&#49457;&#47749;: &#51060;&#46041;&#45397;</span>
+    </footer>
+
+    <style>
+        body {
+            padding-bottom: 56px;
+        }
+
+        .practice-footer {
+            position: fixed;
+            right: 12px;
+            bottom: 12px;
+            z-index: 1030;
+            max-width: calc(100vw - 24px);
+            padding: 10px 14px;
+            border-radius: 8px;
+            background: rgba(26, 26, 46, 0.96);
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-align: right;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22);
+        }
+
+        .practice-separator {
+            margin: 0 10px;
+            color: rgba(255, 255, 255, 0.55);
+        }
+    </style>
+
+    <script>
+        function updatePracticeDateTime() {
+            const now = new Date();
+            const weekdays = ['\uc77c', '\uc6d4', '\ud654', '\uc218', '\ubaa9', '\uae08', '\ud1a0'];
+            const pad = value => String(value).padStart(2, '0');
+            const text = `\uc2e4\uc2b5 \uc218\ud589 \uc77c\uc2dc: ${now.getFullYear()}\ub144 ${now.getMonth() + 1}\uc6d4 ${now.getDate()}\uc77c(${weekdays[now.getDay()]}) ` +
+                `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+            document.getElementById('practiceDateTime').textContent = text;
+        }
+
+        updatePracticeDateTime();
+        setInterval(updatePracticeDateTime, 1000);
+    </script>
+</th:block>
+</body>
+</html>

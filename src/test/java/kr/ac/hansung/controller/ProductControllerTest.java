@@ -1,5 +1,6 @@
 package kr.ac.hansung.controller;
 
+import kr.ac.hansung.dto.ProductDto;
 import kr.ac.hansung.entity.Product;
 import kr.ac.hansung.service.ProductService;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +20,7 @@ import org.springframework.web.context.WebApplicationContext;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -119,6 +121,74 @@ class ProductControllerTest {
                 .param("name", "테스트 상품")
                 .param("price", "15000")
                 .param("stock", "10"))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("ADMIN - 상품 수정 폼 조회 성공 (200)")
+    void editForm_admin_returns200() throws Exception {
+        given(productService.findById(1L)).willReturn(
+            new Product("기존 상품", 15000, "기존 설명", 10)
+        );
+
+        mockMvc.perform(get("/products/1/edit"))
+            .andExpect(status().isOk())
+            .andExpect(view().name("products/edit"))
+            .andExpect(model().attributeExists("productDto"))
+            .andExpect(model().attribute("productId", 1L));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("ADMIN - 상품 수정 POST 후 목록으로 리다이렉트")
+    void editProduct_admin_redirectsToList() throws Exception {
+        given(productService.updateProduct(eq(1L), any(ProductDto.class))).willReturn(
+            new Product("수정 상품", 20000, "수정 설명", 5)
+        );
+
+        mockMvc.perform(post("/products/1/edit")
+                .with(csrf())
+                .param("name", "수정 상품")
+                .param("price", "20000")
+                .param("description", "수정 설명")
+                .param("stock", "5"))
+            .andExpect(status().is3xxRedirection())
+            .andExpect(redirectedUrl("/products"))
+            .andExpect(flash().attribute("successMessage", "상품이 수정되었습니다."));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("ADMIN - 상품 수정 값 검증 실패 시 수정 폼 유지")
+    void editProduct_invalid_returnsEditForm() throws Exception {
+        mockMvc.perform(post("/products/1/edit")
+                .with(csrf())
+                .param("name", "")
+                .param("price", "-1")
+                .param("stock", "-1"))
+            .andExpect(status().isOk())
+            .andExpect(view().name("products/edit"))
+            .andExpect(model().attribute("productId", 1L));
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    @DisplayName("일반 USER - 상품 수정 폼 접근 시 403 (권한 없음)")
+    void editForm_user_returns403() throws Exception {
+        mockMvc.perform(get("/products/1/edit"))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    @DisplayName("일반 USER - 상품 수정 POST 시 403 (권한 없음)")
+    void editProduct_user_returns403() throws Exception {
+        mockMvc.perform(post("/products/1/edit")
+                .with(csrf())
+                .param("name", "수정 상품")
+                .param("price", "20000")
+                .param("stock", "5"))
             .andExpect(status().isForbidden());
     }
 

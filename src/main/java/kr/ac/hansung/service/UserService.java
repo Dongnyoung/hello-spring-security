@@ -25,8 +25,8 @@ public class UserService {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         }
 
-        Role userRole = roleRepository.findByName("ROLE_USER")
-            .orElseGet(() -> roleRepository.save(new Role("ROLE_USER")));
+        Role userRole = roleRepository.findByName(Role.USER)
+            .orElseGet(() -> roleRepository.save(new Role(Role.USER)));
 
         User user = new User();
         user.setEmail(dto.getEmail());

@@ -25,11 +25,11 @@ public class DataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        Role userRole = roleRepository.findByName("ROLE_USER")
-            .orElseGet(() -> roleRepository.save(new Role("ROLE_USER")));
+        Role userRole = roleRepository.findByName(Role.USER)
+            .orElseGet(() -> roleRepository.save(new Role(Role.USER)));
 
-        Role adminRole = roleRepository.findByName("ROLE_ADMIN")
-            .orElseGet(() -> roleRepository.save(new Role("ROLE_ADMIN")));
+        Role adminRole = roleRepository.findByName(Role.ADMIN)
+            .orElseGet(() -> roleRepository.save(new Role(Role.ADMIN)));
 
         if (!userRepository.existsByEmail("admin@hansung.ac.kr")) {
             User admin = new User();
